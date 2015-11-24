@@ -1,25 +1,17 @@
 <!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="UTF-8">
-    <title>Ianhuntress.GitHub.io by IanHuntress</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-  </head>
-<script type="text/javascript">
- function enter(elem){
-     elem.style.backgroundColor = '#FF0000';
- }
+<html>
+<body>
 
- function leave(elem){
-     elem.style.backgroundColor = '#FFFFFF';
- }
+<canvas id="myCanvas" width="200" height="100" style="border:1px solid #c3c3c3;">
+Your browser does not support the HTML5 canvas tag.
+</canvas>
+
+<script>
+var c = document.getElementById("myCanvas");
+var ctx = c.getContext("2d");
+ctx.fillStyle = "#FF0000";
+ctx.fillRect(0,0,150,75);
 </script>
- <div onmouseover="enter(this)" onmouseout="leave(this)">
-       Some Text
- </div>
- 
+
+</body>
 </html>
