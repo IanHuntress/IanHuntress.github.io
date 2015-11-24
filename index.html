@@ -9,24 +9,17 @@
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
-  <body>
-    <div id="colors">
-    
-    </div>
-    <script>
+<script type="text/javascript">
+ function enter(elem){
+     elem.style.backgroundColor = '#FF0000';
+ }
 
-        console.log("farts");
-        
-        
-        var div = document.getElementById( 'colors' );
-            div.onmouseover = function() {
-              this.style.backgroundColor = 'green';
-              var h2s = this.getElementsByTagName( 'h2' );
-              h2s[0].style.backgroundColor = 'blue';
-            };
-        
-      
-      
-    </script>
-  </body>
+ function leave(elem){
+     elem.style.backgroundColor = '#FFFFFF';
+ }
+</script>
+ <div onmouseover="enter(this)" onmouseout="leave(this)">
+       Some Text
+ </div>
+ 
 </html>
