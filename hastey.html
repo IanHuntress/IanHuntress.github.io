@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <style>
+    div.slidecontainer {
+        width: 100%;
+        border: 1px solid black;    
+    }
+    div.plot-container plotly {
+        width: 100%;  
+    }
+    table{
+        width: 100%;
+        border: 1px solid black;    
+
+    }
+    td { 
+        width: 33%;
+    }
+    </style>
+<body>
+<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<H1>Metropolis Hastings algorithm implementation example to estimate relative frequencies of purines and pyrimidines</H1>
+
+    <p>
+    Lets assume that the prior p(&Theta;) is uniform between 0 and 1. Let &delta; = 0.1 and assume that 2 purines and 5 pyrimidines are our data.
+
+    </p>
+<table>
+  <tr>
+    <td> <div id="graph1" ></div> </td>
+
+    <td class="slidecontainer"> 
+
+      Number of samples: <input type="range" min=1 max=10000 value=10000 class="slider" id="TotalSamples"><br />
+      Number of Observations: <input type="range" min=0 max=100 value=70 class="slider" id="TotalObserved"><br />
+      True Proportion of Purines:<input type="range" min=0 max=1 value=0.2 step=0.01 class="slider" id="TrueTheta"> <br />
+      Window size &delta;:<input type="range" min=0 max=1 value=0.1 step=0.01 class="slider" id="WindowSize"> <br />
+      Burn In:<input type="range" min=0 max=10000 value=10000 step=1 class="slider" id="BurnIn"> <br />
+      <button onclick="graph()" type="button">Simulate!</button>
+
+    </td>
+    <td id="Results">
+        
+        <p id="PostMean">
+            
+        </p>
+        <p id="PostStd">
+        
+        </p>
+
+    </td>
+  </tr>
+    <p>
+    Posterior variance <br />
+    $$ \frac{1}{n} \sum_{i=0}^n \Theta^2$$
+    How do you choose an initial value with which to start the chain? <br />
+    A random initial value works well. <br />
+    Do you use a burn-in period? <br />
+    A 10000 burn-in period "calms" down some of the noise. <br />
+    
+
+
+    How do you check whether your Metropolis-Hastings approximation is good? <br />
+    Repeat the simulation to "reassure" yourself of a good approximation. (But really you can't know for sure without infinite time)
+    </p>
+
+    <div id="graph2" >
+    </div>
+    
+
+    
+    We repeat the sampling with 20 purines and 50 pyrimidines.
+    
+</body>
+</html>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+
+<script src="Hastey.js"></script>
+
