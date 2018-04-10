@@ -92,9 +92,25 @@ function Uniform_Prior(T) {
     return(1)
 }
 
+Prior = Uniform_Prior
+
+function Jumpy_Prior(T) {
+    if (T >= 0 && T <= 0.3) {
+        return(10/3 - (100/9)*T)
+    } else if (T >= 0.3 && T<=1) {
+        return((100*T)/49 - 30/49)
+    }
+}
+
+function Select_Jumpy() {
+    Prior = Jumpy_Prior
+}
+function Select_Uniform() {
+    Prior = Uniform_Prior
+}
 function MC_Sample () {
     Tnew = Generate_Tnew(Told)
-    r = (P_X_Given_Theta(X,Tnew) * Uniform_Prior(Tnew) * Jumping_Distribution(Told, Tnew)) / (P_X_Given_Theta(X,Told) * Uniform_Prior(Told) * Jumping_Distribution(Tnew, Told))
+    r = (P_X_Given_Theta(X,Tnew) * Prior(Tnew) * Jumping_Distribution(Told, Tnew)) / (P_X_Given_Theta(X,Told) * Prior(Told) * Jumping_Distribution(Tnew, Told))
     
     if (Math.random() < Math.min(r, 1)) {
         Told = Tnew // make the jump
@@ -103,15 +119,6 @@ function MC_Sample () {
     }
     return(Told)
 }
-
-// samples = []
-// probs = []
-
-// max = 0
-// for(i=0;i<1;i+=0.01){
-    // probs.push(P_X_Given_Theta(X,i))
-    // samples.push(i)
-// }
 
 function simulate(data, d, Tstart, burn, samples, totalSamples) {
 
@@ -130,22 +137,16 @@ function simulate(data, d, Tstart, burn, samples, totalSamples) {
 
 }
 
-// 1 = purine, 0 = pyrimidine
-// X = [1,1,0,0,0,0,0]
-// X = [0,1,0,0,0,0,1]
-// X = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]
-// X = ['pu','pu','py','py','py','py','py']
-
 
 function Generate_Obs(XData, prop) {
     X = []
-    XData -= 1
+
     purines = prop*XData
     pyrimidine = (1-prop)*XData
-    for(i=0;i<purines;i++){
+    for(i=0;i<Math.floor(purines);i++){
         X.push(1)
     }
-    for(i=0;i<pyrimidine;i++){
+    for(i=0;i<Math.floor(pyrimidine);i++){
         X.push(0)
     }
     return(X)
@@ -171,17 +172,127 @@ function graph() {
     ];
     Plotly.newPlot('graph1', data, layout);
 
-    // var math = MathJax.Hub.getAllJax("Results")[0];
     posterior = samples.reduce(sum) / samples.length
     variance = samples.reduce(squareSum) / samples.length
     std = variance * variance
+    
+    document.getElementById("PostMean").innerHTML = "Posterior mean = " + posterior.toFixed(3)
+    document.getElementById("PostStd").innerHTML = "Posterior standard deviation = " + std.toFixed(3)
 
-    // MathJax.Hub.Queue(["Text",math,"\\frac{1}{n} \\sum_{i=0}^n \\Theta = " + posterior.toFixed(3)]);
+}
+
+function Preset1() {
+    document.getElementById("TotalSamples").value = 10000
+    document.getElementById("BurnIn").value = 0
+    document.getElementById("WindowSize").value = 0.1
+    document.getElementById("TotalObserved").value = 7
+    document.getElementById("TrueTheta").value = 2/7
+    
+    Select_Uniform()
+}
+function Preset2() {
+    document.getElementById("TotalSamples").value = 10000
+    document.getElementById("BurnIn").value = 0
+    document.getElementById("WindowSize").value = 0.1
+    document.getElementById("TotalObserved").value = 70
+    document.getElementById("TrueTheta").value = 2/7
+    Select_Uniform()
+}
+function Preset3() {
+    document.getElementById("TotalSamples").value = 10000
+    document.getElementById("BurnIn").value = 0
+    document.getElementById("WindowSize").value = 0.1
+    document.getElementById("TotalObserved").value = 7
+    document.getElementById("TrueTheta").value = 2/7
+    Select_Jumpy()
+}
+function Preset4() {
+    document.getElementById("TotalSamples").value = 10000
+    document.getElementById("BurnIn").value = 0
+    document.getElementById("WindowSize").value = 0.1
+    document.getElementById("TotalObserved").value = 70
+    document.getElementById("TrueTheta").value = 2/7
+    Select_Jumpy()
+}
+
+function rejectionGraph() {
+    // document.getElementById("TotalSamples").value = 10000
+    totalSamples = document.getElementById("TotalSamples").value
+    samples = []
+    c = 3
+    for (i=0;samples.length<totalSamples;i++){
+        Ts = Math.random()
+        r = Prior(Ts) / c * Uniform_Prior(Ts)
+        
+        if( Math.random() < r ) {
+            samples.push(Ts)
+        } else {
+            //nothing
+        }
+        
+    }
+    
+    var data = [
+      {
+        x: samples,
+        type: 'histogram',
+        size: 0.05,
+        mode: 'markers'
+      }
+    ];
+    Plotly.newPlot('graph1', data, layout);
+
+    posterior = samples.reduce(sum) / samples.length
+    variance = samples.reduce(squareSum) / samples.length
+    std = variance * variance
     
     document.getElementById("PostMean").innerHTML = "Posterior mean = " + posterior.toFixed(3)
     document.getElementById("PostStd").innerHTML = "Posterior standard deviation = " + std.toFixed(3)
     
 }
+
+function importanceSample() {
+    // document.getElementById("TotalSamples").value = 10000
+    totalSamples = document.getElementById("TotalSamples").value
+    samples = []
+    weights = []
+    c = 3
+    for (i=0;i<totalSamples;i++){
+        Ts = Math.random()
+        w = Prior(Ts) / Uniform_Prior(Ts)
+        
+    }
+    
+    var data = [
+      {
+        x: samples,
+        type: 'histogram',
+        size: 0.05,
+        mode: 'markers'
+      }
+    ];
+    Plotly.newPlot('graph1', data, layout);
+
+    posterior = samples.reduce(sum) / samples.length
+    variance = samples.reduce(squareSum) / samples.length
+    std = variance * variance
+    
+    document.getElementById("PostMean").innerHTML = "Posterior mean = " + posterior.toFixed(3)
+    document.getElementById("PostStd").innerHTML = "Posterior standard deviation = " + std.toFixed(3)
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 window.onload = function() {
     graph();
