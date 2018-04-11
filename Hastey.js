@@ -3,7 +3,31 @@ function sum(total, num) {
 }
 
 function squareSum(total, num) {
-    return total + num*num;
+    return total + (num-posterior)*(num-posterior);
+}
+
+function standardDeviation(values){ //https://derickbailey.com/2014/09/21/calculating-standard-deviation-with-array-map-and-array-reduce-in-javascript/
+  var avg = average(values);
+  
+  var squareDiffs = values.map(function(value){
+    var diff = value - avg;
+    var sqrDiff = diff * diff;
+    return sqrDiff;
+  });
+  
+  var avgSquareDiff = average(squareDiffs);
+
+  var stdDev = Math.sqrt(avgSquareDiff);
+  return stdDev;
+}
+
+function average(data){
+  var sum = data.reduce(function(sum, value){
+    return sum + value;
+  }, 0);
+
+  var avg = sum / data.length;
+  return avg;
 }
 
 function factorialize(num) { //https://medium.freecodecamp.org/how-to-factorialize-a-number-in-javascript-9263c89a4b38
@@ -55,7 +79,9 @@ var layout = {
     t: 20,
     pad: 4
   },
-  xaxis: {range: [0, 1]},
+  xaxis: {range: [0, 1],
+  title: 'Theta',},
+  Yaxis: {title: 'Counts'},
   plot_bgcolor: '#c7c7c7'
 };
 
@@ -173,11 +199,10 @@ function graph() {
     Plotly.newPlot('graph1', data, layout);
 
     posterior = samples.reduce(sum) / samples.length
-    variance = samples.reduce(squareSum) / samples.length
-    std = variance * variance
-    
-    document.getElementById("PostMean").innerHTML = "Posterior mean = " + posterior.toFixed(3)
-    document.getElementById("PostStd").innerHTML = "Posterior standard deviation = " + std.toFixed(3)
+   
+    std = standardDeviation(samples)
+    document.getElementById("PostMean").innerHTML = "Posterior mean = " + posterior.toFixed(4)
+    document.getElementById("PostStd").innerHTML = "Posterior standard deviation = " + std.toFixed(4)
 
 }
 
@@ -189,6 +214,7 @@ function Preset1() {
     document.getElementById("TrueTheta").value = 2/7
     
     Select_Uniform()
+    graph()
 }
 function Preset2() {
     document.getElementById("TotalSamples").value = 10000
@@ -197,6 +223,7 @@ function Preset2() {
     document.getElementById("TotalObserved").value = 70
     document.getElementById("TrueTheta").value = 2/7
     Select_Uniform()
+    graph()
 }
 function Preset3() {
     document.getElementById("TotalSamples").value = 10000
@@ -205,6 +232,7 @@ function Preset3() {
     document.getElementById("TotalObserved").value = 7
     document.getElementById("TrueTheta").value = 2/7
     Select_Jumpy()
+    graph()
 }
 function Preset4() {
     document.getElementById("TotalSamples").value = 10000
@@ -213,13 +241,14 @@ function Preset4() {
     document.getElementById("TotalObserved").value = 70
     document.getElementById("TrueTheta").value = 2/7
     Select_Jumpy()
+    graph()
 }
 
 function rejectionGraph() {
     // document.getElementById("TotalSamples").value = 10000
     totalSamples = document.getElementById("TotalSamples").value
     samples = []
-    c = 3
+    c = 3.3
     for (i=0;samples.length<totalSamples;i++){
         Ts = Math.random()
         r = Prior(Ts) / c * Uniform_Prior(Ts)
@@ -243,11 +272,10 @@ function rejectionGraph() {
     Plotly.newPlot('graph1', data, layout);
 
     posterior = samples.reduce(sum) / samples.length
-    variance = samples.reduce(squareSum) / samples.length
-    std = variance * variance
+    std = standardDeviation(samples)
     
-    document.getElementById("PostMean").innerHTML = "Posterior mean = " + posterior.toFixed(3)
-    document.getElementById("PostStd").innerHTML = "Posterior standard deviation = " + std.toFixed(3)
+    document.getElementById("PostMean").innerHTML = "Posterior mean = " + posterior.toFixed(4)
+    document.getElementById("PostStd").innerHTML = "Posterior standard deviation = " + std.toFixed(4)
     
 }
 
@@ -256,11 +284,10 @@ function importanceSample() {
     totalSamples = document.getElementById("TotalSamples").value
     samples = []
     weights = []
-    c = 3
     for (i=0;i<totalSamples;i++){
         Ts = Math.random()
-        w = Prior(Ts) / Uniform_Prior(Ts)
-        
+        w = Prior(Ts) / (Uniform_Prior(Ts))
+        samples.push(w*Ts)
     }
     
     var data = [
@@ -274,23 +301,27 @@ function importanceSample() {
     Plotly.newPlot('graph1', data, layout);
 
     posterior = samples.reduce(sum) / samples.length
-    variance = samples.reduce(squareSum) / samples.length
-    std = variance * variance
+    std = standardDeviation(samples)
+
     
-    document.getElementById("PostMean").innerHTML = "Posterior mean = " + posterior.toFixed(3)
-    document.getElementById("PostStd").innerHTML = "Posterior standard deviation = " + std.toFixed(3)
+    document.getElementById("PostMean").innerHTML = "Posterior mean = " + posterior.toFixed(4)
+    document.getElementById("PostStd").innerHTML = "Posterior standard deviation = " + std.toFixed(4)
     
 }
 
-
-
-
-
-
-
-
-
-
+function Pole_Prior(T) {
+    if (T >= 0.2 && T <= 0.3) {
+        return(9)
+    } else {
+        return(1/9)
+    }
+}
+function Parabola_Prior(T) {
+    return((2*T-1)*(2*T-1)+0.67)
+}
+function AbsVal_Prior(T) {
+    return(Math.abs(2*T-1)+0.5)
+}
 
 
 

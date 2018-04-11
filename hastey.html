@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html>
+<head>
+</head>
+
     <style>
     div.slidecontainer {
         width: 100%;
@@ -21,21 +24,7 @@
 <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
 <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
-<script type="text/javascript" 
-  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js">
-</script>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX", "output/HTML-CSS"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
-      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
-      processEscapes: true
-    },
-    "HTML-CSS": { fonts: ["TeX"] }
-  });
-</script>
+
 
 <H1>Hastey</H1>
 <H2>Metropolis Hastings algorithm implementation example to estimate relative frequencies of purines and pyrimidines</H2>
@@ -65,37 +54,44 @@
         </p>
     </td>
   </tr>
-    <p>
-    
+  <tr>
+    <td>
     <button onclick="Preset1()" type="button">Preset 1</button>
     <button onclick="Preset2()" type="button">Preset 2</button>
     <button onclick="Preset3()" type="button">Preset 3</button>
     <button onclick="Preset4()" type="button">Preset 4</button>
+    </td>
+    <td>
     <button onclick="Select_Uniform()" type="button">Prior Uniform</button>
     <button onclick="Select_Jumpy()" type="button">Select Jumpy</button>
     <button onclick="rejectionGraph()" type="button">Rejection Sample Current Prior</button>
     <button onclick="importanceSample()" type="button">Importance Sample Current Prior</button>
-
-    How do you check whether your Metropolis-Hastings approximation is good? <br />
-    Repeat the simulation to "reassure" yourself of a good approximation. (But really you can't know for sure without infinite time)
+    </td>
+  </tr>
+    <p>
+    
+    
     </p>
 
     1.
-    Use Preset 1 -> Simulate!
-    Lets assume that the prior p(&Theta;) is uniform between 0 and 1. Let &delta; = 0.1 and assume that 2 purines and 5 pyrimidines are our data.
-    A random initial value works well. A 10000 burn-in period "calms" down some of the noise. We will use the average of all theta values after burn in as an estimate of the posterior mean.
-    We will use the squared average of all squared theta values after burn in as an estimate of the posterior standard of deviation. <br />
+    Use Preset 1 to assume that the prior p(&Theta;) is uniform between 0 and 1, exploration window &delta; = 0.1 and our observed data: 2 purines and 5 pyrimidines.
+    Using a random initial value and a 10000 burn-in period "calms" down some of the noise. We will use the average of all theta values after burn in as an estimate of the posterior mean: &mu; = 1/N * &Sigma;(&Theta;)
+    . We will use 1/N * &Sigma;(&Theta;-&mu;)^2 as an estimate of the posterior standard of deviation.
+    Repeat the simulation to "reassure" yourself of a good approximation. (But really you can't know for sure without infinite time)<br />
+
     
     2.
-    Use Preset 2 -> Simulate! to repeat the sampling with more observed data. 20 purines and 50 pyrimidines. <br />
+    Use Preset 2 to repeat the sampling with more observed data. 20 purines and 50 pyrimidines. Notice how the posterior histogram has a much smaller variance; more observations have made us 
+    more confident in our prediction of &Theta;.<br />
     
     3.
-    Use Preset 3 -> Simulate! to repeat the sampling with a small set of observations, and a more "Jumpy" prior distribution, defined by: 
+    Use Preset 3 to repeat the sampling with a small set of observations, and a more "Jumpy" prior distribution, defined by: 
     10/3 - (100/9)&Theta; when 0 <= &Theta; <= 0.3 and 100 &Theta; /49 - 30/49 when 0.3 <= &Theta; <= 1 (This places a difficult minimum near the true proportion) <br />
 
     
-    4. <br />
-    Use Preset 4 -> Simulate! to repeat the sampling with a larger (70) set of observations and the "Jumpy" prior. 
+    4. 
+    Use Preset 4 to repeat the sampling with a larger (70) set of observations and the "Jumpy" prior. Notice how some of the posterior is squished at 0.3, causing our estimated STD to become slightly
+    more variable across simulations.<br />
     
     5.
     Comparing Preset 3 and 4, we find that both estimates suffer similarly from the "Jumpy" prior. The minimum of the prior being very close to the true proportion prevents either from reaching a good estimate in a reasonable time. 
@@ -107,21 +103,34 @@
     The part of the distribution that is "squashed" due to the "Jumpy" prior has a smaller effect on the larger observation set than on the small set. <br />
     
     7.
+    Use the Rejection Sample Current Prior button to see a histogram of accepted samples from the currently selected prior. To generate these samples, we propose a new &Theta; from a Uniform Distribution from 0 to 1, 
+    U(0,1). We calculate the ratio of
+    the current Prior(&Theta;) to some constant C * a Uniform Distribution that "encompasses" the current Prior. We then randomly accept or reject the &Theta; based on this ratio.
+    This continues until the desired number of samples have been accepted, at which point, we estimate the values in the Results tab using the equations mentioned in Part 1.
+    
     
     <br />
     
+    8.
+    Use the Importance Sample Current Prior button to see a histogram of accepted samples from the currently selected prior. To generate these samples, rather than accepting a few proposed &Theta;
+    , we accept all newly generated &Theta;, but we weight their contribution to our Expectation of the posterior statistics. Since we are sampling from a Uniform distribution, the weights are
+    how "far" the currently selected prior is from the Uniform Distribution for each new &Theta;. (weight equal to 1 indicates that the current prior and the Uniform are identical in that region)
     
+    We estimate the posterior mean in Results tab by averaging &Theta;*weight for each &Theta;. We estimate the posterior standard of deviation by averaging the squared deviations from the mean. 
+    <br /> <center> &mu; = 1/N * &Sigma;(&Theta;)<br />   STD = 1/N * &Sigma;(&Theta;-&mu;)^2 </center>
+    <br />
+    By tinkering with the total Number of Samples across multiple simulations of Rejection and Importance sampling, we find that the posterior estimates settle down near only 100 samples, and are close to 
+    stationary around N = 100000. Unfortunately, our graph somewhat loses coherent meaning when graphing importance samples. (I don't understand the "cliff" visible at 0.24, so pull requests are welcome)
     
-    <div id="graph2" >
-    </div>
+    <p>
+
+    </p>
     
-    
+    <br />
     
 </body>
 </html>
 
 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
-
 <script src="Hastey.js"></script>
 
